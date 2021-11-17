@@ -1,5 +1,9 @@
 'reach 0.1';
 
+// Participant interact interface
+const 
+
+
 export const main = Reach.App(() => {
   const A = Participant('Alice', {
     // Specify Alice's interact interface here
