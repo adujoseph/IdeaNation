@@ -7,15 +7,20 @@ import { ask, yesno, done } from '@reach-sh/stdlib/ask.mjs';
   const fmt = (au) => stdlib.formatCurrency(au, 4);
   const getStandardUnitBalance = async (acc) => fmt(await stdlib.balanceOf(acc));
   const su = stdlib.standardUnit;
-  const role = process.env.role
+  const chooseRole = await ask(`Choose role: Fundraiser or Sponsor?`, (x => x));
+  // const role = process.env.role
+  const role = chooseRole
   const isFundraiser = role === 'Fundraiser' ? true : false;
-  const devnet = process.env.type === 'devnet' ? true : false;
+  // const devnet = process.env.type === 'devnet' ? true : false;
+  const devnet  = 'devnet' ;
   const abbrAddr = (addr) => addr.substr(0, 5);
   const yourAddr = (addr, acc) => stdlib.addressEq(addr, acc.networkAccount) ? `${abbrAddr(addr)}*` : `${abbrAddr(addr)} `;
   const ctcDeployTime = (info) => su == 'ALGO' ? info.creationRound : info.creation_block;
 
   console.log(`Your role is ${role}.`)
-  console.log(`Your network type is ${process.env.type}.`)
+  // console.log(`Your network type is ${process.env.type}.`)
+  console.log(`Your network type is ${devnet}.`)
+
 
   // account
 
@@ -42,7 +47,7 @@ import { ask, yesno, done } from '@reach-sh/stdlib/ask.mjs';
     };
 
     console.log(`${me}: Your project goal is ${fmt(fundraiserApi.fundraisingGoal)} ${su}.`);
-    let ctc = acc.deploy(backend);
+    let ctc = acc.contract(backend);
     const info = await ctc.getInfo();
     console.log(`${me}: Your contract deployment time is ${ctcDeployTime(info)}`);
     console.log(`${me}: Your contract info is ${JSON.stringify(info)}`);
@@ -87,3 +92,6 @@ import { ask, yesno, done } from '@reach-sh/stdlib/ask.mjs';
 
   done();
 })();
+
+
+// Can you hear me? I can hear you.....
