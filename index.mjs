@@ -6,45 +6,65 @@ const stdlib = loadStdlib(process.env);
 (async () => {
   const startingBalance = stdlib.parseCurrency(100);
 
-  const gig = await stdlib.newTestAccounts(startingBalance);
-  const sponsor = await stdlib.newTestAccounts(startingBalance);
+  const [accA, accB, accC, accD, accE, accF] = await stdlib.newTestAccounts(
+    6,
+    startingBalance
+  );
 
-  const ctcGig = gig.deploy(backend);
-  const ctcSponsor = sponsor.attachment(backend, ctcGig.getInfo());
+  const fmx = x => stdlib.formatCurrency(x, 4);
+  const getBalance = async acc => fmx(await stdlib.balanceOf(acc));
+
+  const initialBalA = await getBalance(accA);
+  const initialBalB = await getBalance(accB);
+  const initialBalC = await getBalance(accC);
+  const initialBalD = await getBalance(accD);
+
+  console.log("Hello and welcome");
+
+  const chooseRole = await ask(`Choose role: Fundraiser or Sponsor?`, x => x);
+  const projectName = await ask(`What is project name?`, x => x);
+  const projectDescription = await ask(`Details: `, x => x);
+  const amount = await ask(`Amount: `, x => x);
+  const equity = await ask(`Equity `, x => x);
+  const address = await ask(`Wallet Address: `, x => x);
+
+  const fundsObj = {
+    name: projectName,
+    description: projectDescription,
+    amount: amount,
+    equity: equity,
+    address: address,
+  };
+
+  console.log("Launching...");
+  const ctcA = accA.contract(backend);
+  const ctcB = accB.contract(backend, ctcA.getInfo());
+  const ctcC = accC.contract(backend, ctcA.getInfo());
+  const ctcD = accC.contract(backend, ctcA.getInfo());
 
   console.log("Starting backends...");
-  const isGig = await ask(`Are you a sponsor?`, yesno);
-  const identify = isGig ? "Sponsor" : "Gigs";
   await Promise.all([
-    backend.Gigs(ctcGig, {
+    backend.A(ctcA, {
       ...stdlib.hasRandom,
-      // implement Gigs' interact object here
+      ...fundsObj,
+      // implement Alice's interact object here
     }),
-    backend.Spons(ctcSponsor, {
+    backend.B(ctcB, {
       ...stdlib.hasRandom,
-      // implement Spons' interact object here
+      ...fundsObj,
+      // implement Bob's interact object here
+    }),
+    backend.C(ctcC, {
+      ...stdlib.hasRandom,
+      ...fundsObj,
+      // implement Bob's interact object here
+    }),
+    backend.D(ctcD, {
+      ...stdlib.hasRandom,
+      ...fundsObj,
+      // implement Bob's interact object here
     }),
   ]);
 
-  // const [ accAlice, accBob ] =
-  //   await stdlib.newTestAccounts(2, startingBalance);
-  // console.log('Hello, Alice and Bob!');
-
-  // console.log('Launching...');
-  // const ctcAlice = accAlice.contract(backend);
-  // const ctcBob = accBob.contract(backend, ctcAlice.getInfo());
-
-  // console.log('Starting backends...');
-  // await Promise.all([
-  //   backend.Alice(ctcAlice, {
-  //     ...stdlib.hasRandom,
-  //     // implement Alice's interact object here
-  //   }),
-  //   backend.Bob(ctcBob, {
-  //     ...stdlib.hasRandom,
-  //     // implement Bob's interact object here
-  //   }),
-  // ]);
-
-  console.log("Goodbye");
+  console.log("Goodbye, Contract ends!!");
 })();
